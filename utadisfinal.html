@@ -8,160 +8,160 @@
         <h1>UTADIS Final Verion Python Code</h1>
         <pre>
             <code>
-                # دریافت تعداد ستون‌ها
-                num_columns = int(input('tedad sotoon ha: '))
-                
-                # دریافت تعداد اعداد در هر ستون
-                m = int(input('tedad adad ha (alternatives): '))
-                
-                # دریافت تعداد طبقات
-                w_count = int(input('tedad w ha dar har radif: '))
-                
-                # لیست نهایی برای ذخیره اطلاعات هر ستون
-                columns_data = {}
-                
-                # حلقه برای دریافت اطلاعات هر ستون
-                for j in range(1, num_columns + 1):
-                    print(f"\nshoro vared kardan adad haye sotoon {j}:")
-                    list_sotoon = []
-                    
-                    # دریافت اعداد ستون
-                    for _ in range(m):
-                        adad = float(input())  # تغییر به float برای اعداد اعشاری
-                        list_sotoon.append(adad)
-                
-                    # محاسبه مرزهای طبقات
-                    maximum = max(list_sotoon)
-                    minimum = min(list_sotoon)
-                    L = (maximum - minimum) / w_count
-                    t_values = [minimum + i * L for i in range(w_count)]
-                    t_values.append(maximum)
-                
-                    # ذخیره اطلاعات ستون
-                    columns_data[j] = {
-                        "list_sotoon": list_sotoon,
-                        "t_values": t_values,
-                        "minimum": minimum,
-                        "maximum": maximum
-                    }
-                
-                # دریافت کلاس برای هر ردیف
-                row_classes = {}
-                for i in range(m):
-                    row_class = input(f"Class baraye radif {i+1} ra vared konid (just number): ")
-                    row_classes[i] = row_class
-                
-                # دریافت مقدار اپسیلون برای تمامی نامعادلات
-                epsilon_value = float(input("Miqdar epsilon ra vared konid: "))
-                
-                # نمایش ماتریس به صورت جدول با کلاس‌ها
-                print("\nMatrise shoma:")
-                for row in range(m):
-                    row_values = []
-                    for column in range(1, num_columns + 1):
-                        row_values.append(f"{columns_data[column]['list_sotoon'][row]:.2f}")
-                    print("\t".join(row_values), f" | Class: {row_classes[row]}")
-                
-                # ذخیره نتایج هر سطر
-                row_results = {i: [] for i in range(m)}
-                
-                # پردازش و جمع‌بندی
-                sigma_index = 0  # برای ایجاد اندیس یکتا برای سیگما
-                sigma_list = []  # لیست سیگماها برای محاسبه Min
-                w_list = []  # لیست wها برای شرط جمع برابر با یک
-                
-                for j, data in columns_data.items():
-                    list_sotoon = data["list_sotoon"]
-                    t_values = data["t_values"]
-                    minimum = data["minimum"]
-                
-                    for idx, z in enumerate(list_sotoon):
-                        u = []
-                        remaining_value = z - minimum
-                
-                        for i in range(w_count):
-                            lower_bound = t_values[i]
-                            upper_bound = t_values[i + 1]
-                            
-                            w_variable = f"w{j}{i + 1}"
-                            if w_variable not in w_list:
-                                w_list.append(w_variable)
-                
-                            if remaining_value <= 0:
-                                break
-                
-                            if remaining_value <= (upper_bound - lower_bound):
-                                weight = remaining_value / (upper_bound - lower_bound)
-                                u.append(f"{weight:.2f}*{w_variable}")
-                                remaining_value = 0
-                            else:
-                                weight = 1.0
-                                u.append(f"{weight:.2f}*{w_variable}")
-                                remaining_value -= (upper_bound - lower_bound)
-                
-                        # ذخیره نتیجه هر سطر
-                        row_results[idx].append(" + ".join(filter(None, u)))
-                
-                # نمایش نتایج نهایی همراه با کلاس‌ها
-                output = []
-                
-                for i in range(m):
-                    combined_result = " + ".join(filter(None, row_results[i])).strip()
-                    class_i = int(row_classes[i])
-                    
-                    if row_classes[i] == "1":
-                        # محاسبه فرمول خاص برای کلاس 1
-                        sigma_index += 1
-                        sigma_i = f"s{sigma_index}"  # سیگما با اندیس یکتا
-                        sigma_list.append(sigma_i)
-                        epsilon = f"{epsilon_value}"  # مقدار اپسیلون
-                        u_i = "u1"
-                        combined_result += f" + {sigma_i} - {epsilon} >= {u_i}"
-                    elif row_classes[i] == str(max(map(int, row_classes.values()))):
-                        # محاسبه فرمول خاص برای کلاس آخر
-                        sigma_index += 1
-                        sigma_i = f"s{sigma_index}"  # سیگما با اندیس یکتا
-                        sigma_list.append(sigma_i)
-                        epsilon = f"{epsilon_value}"  # مقدار اپسیلون
-                        u_i = f"u{class_i - 1}"
-                        combined_result += f" - {sigma_i} + {epsilon} <= {u_i}"
-                    else:
-                        # محاسبه فرمول خاص برای سایر کلاس‌ها
-                        lower_class = f"u{class_i - 1}"
-                        current_class = f"u{class_i}"
-                        sigma_index += 1
-                        sigma_i_1 = f"s{sigma_index}"  # سیگما با اندیس یکتا
-                        sigma_list.append(sigma_i_1)
-                        combined_result_1 = combined_result + f" + {sigma_i_1} - {epsilon} >= {lower_class}"
-                        sigma_index += 1
-                        sigma_i_2 = f"s{sigma_index}"  # سیگما با اندیس یکتا
-                        sigma_list.append(sigma_i_2)
-                        combined_result_2 = combined_result + f" + {sigma_i_2} + {epsilon} <= {current_class}"
-                        output.append(combined_result_1)
-                        output.append(combined_result_2)
-                        continue
-                
-                    output.append(combined_result)
-                
-                # اضافه کردن خط Min به خروجی
-                min_line = f"Min = {' + '.join(sigma_list)}"
-                
-                output.insert(0, min_line)
-                
-                # اضافه کردن شرط جمع برابر با یک برای تمام wها
-                w_constraint = f"{' + '.join(w_list)} = 1"
-                output.append(w_constraint)
-                
-                # اضافه کردن شرط‌های uها بر اساس تعداد طبقات
-                max_class = max(map(int, row_classes.values()))
-                
-                if max_class > 2:
-                    u_constraints = [f"u{i} > u{i + 1}" for i in range(1, max_class)]
-                    output.extend(u_constraints)
-                
-                # نمایش خروجی
-                for line in output:
-                    print(line + ';')
+# دریافت تعداد ستون‌ها
+num_columns = int(input('tedad sotoon ha: '))
+
+# دریافت تعداد اعداد در هر ستون
+m = int(input('tedad adad ha (alternatives): '))
+
+# دریافت تعداد طبقات
+w_count = int(input('tedad w ha dar har radif: '))
+
+# لیست نهایی برای ذخیره اطلاعات هر ستون
+columns_data = {}
+
+# حلقه برای دریافت اطلاعات هر ستون
+for j in range(1, num_columns + 1):
+    print(f"\nshoro vared kardan adad haye sotoon {j}:")
+    list_sotoon = []
+    
+    # دریافت اعداد ستون
+    for _ in range(m):
+        adad = float(input())  # تغییر به float برای اعداد اعشاری
+        list_sotoon.append(adad)
+
+    # محاسبه مرزهای طبقات
+    maximum = max(list_sotoon)
+    minimum = min(list_sotoon)
+    L = (maximum - minimum) / w_count
+    t_values = [minimum + i * L for i in range(w_count)]
+    t_values.append(maximum)
+
+    # ذخیره اطلاعات ستون
+    columns_data[j] = {
+        "list_sotoon": list_sotoon,
+        "t_values": t_values,
+        "minimum": minimum,
+        "maximum": maximum
+    }
+
+# دریافت کلاس برای هر ردیف
+row_classes = {}
+for i in range(m):
+    row_class = input(f"Class baraye radif {i+1} ra vared konid (just number): ")
+    row_classes[i] = row_class
+
+# دریافت مقدار اپسیلون برای تمامی نامعادلات
+epsilon_value = float(input("Miqdar epsilon ra vared konid: "))
+
+# نمایش ماتریس به صورت جدول با کلاس‌ها
+print("\nMatrise shoma:")
+for row in range(m):
+    row_values = []
+    for column in range(1, num_columns + 1):
+        row_values.append(f"{columns_data[column]['list_sotoon'][row]:.2f}")
+    print("\t".join(row_values), f" | Class: {row_classes[row]}")
+
+# ذخیره نتایج هر سطر
+row_results = {i: [] for i in range(m)}
+
+# پردازش و جمع‌بندی
+sigma_index = 0  # برای ایجاد اندیس یکتا برای سیگما
+sigma_list = []  # لیست سیگماها برای محاسبه Min
+w_list = []  # لیست wها برای شرط جمع برابر با یک
+
+for j, data in columns_data.items():
+    list_sotoon = data["list_sotoon"]
+    t_values = data["t_values"]
+    minimum = data["minimum"]
+
+    for idx, z in enumerate(list_sotoon):
+        u = []
+        remaining_value = z - minimum
+
+        for i in range(w_count):
+            lower_bound = t_values[i]
+            upper_bound = t_values[i + 1]
+            
+            w_variable = f"w{j}{i + 1}"
+            if w_variable not in w_list:
+                w_list.append(w_variable)
+
+            if remaining_value <= 0:
+                break
+
+            if remaining_value <= (upper_bound - lower_bound):
+                weight = remaining_value / (upper_bound - lower_bound)
+                u.append(f"{weight:.2f}*{w_variable}")
+                remaining_value = 0
+            else:
+                weight = 1.0
+                u.append(f"{weight:.2f}*{w_variable}")
+                remaining_value -= (upper_bound - lower_bound)
+
+        # ذخیره نتیجه هر سطر
+        row_results[idx].append(" + ".join(filter(None, u)))
+
+# نمایش نتایج نهایی همراه با کلاس‌ها
+output = []
+
+for i in range(m):
+    combined_result = " + ".join(filter(None, row_results[i])).strip()
+    class_i = int(row_classes[i])
+    
+    if row_classes[i] == "1":
+        # محاسبه فرمول خاص برای کلاس 1
+        sigma_index += 1
+        sigma_i = f"s{sigma_index}"  # سیگما با اندیس یکتا
+        sigma_list.append(sigma_i)
+        epsilon = f"{epsilon_value}"  # مقدار اپسیلون
+        u_i = "u1"
+        combined_result += f" + {sigma_i} - {epsilon} >= {u_i}"
+    elif row_classes[i] == str(max(map(int, row_classes.values()))):
+        # محاسبه فرمول خاص برای کلاس آخر
+        sigma_index += 1
+        sigma_i = f"s{sigma_index}"  # سیگما با اندیس یکتا
+        sigma_list.append(sigma_i)
+        epsilon = f"{epsilon_value}"  # مقدار اپسیلون
+        u_i = f"u{class_i - 1}"
+        combined_result += f" - {sigma_i} + {epsilon} <= {u_i}"
+    else:
+        # محاسبه فرمول خاص برای سایر کلاس‌ها
+        lower_class = f"u{class_i - 1}"
+        current_class = f"u{class_i}"
+        sigma_index += 1
+        sigma_i_1 = f"s{sigma_index}"  # سیگما با اندیس یکتا
+        sigma_list.append(sigma_i_1)
+        combined_result_1 = combined_result + f" + {sigma_i_1} - {epsilon} >= {lower_class}"
+        sigma_index += 1
+        sigma_i_2 = f"s{sigma_index}"  # سیگما با اندیس یکتا
+        sigma_list.append(sigma_i_2)
+        combined_result_2 = combined_result + f" + {sigma_i_2} + {epsilon} <= {current_class}"
+        output.append(combined_result_1)
+        output.append(combined_result_2)
+        continue
+
+    output.append(combined_result)
+
+# اضافه کردن خط Min به خروجی
+min_line = f"Min = {' + '.join(sigma_list)}"
+
+output.insert(0, min_line)
+
+# اضافه کردن شرط جمع برابر با یک برای تمام wها
+w_constraint = f"{' + '.join(w_list)} = 1"
+output.append(w_constraint)
+
+# اضافه کردن شرط‌های uها بر اساس تعداد طبقات
+max_class = max(map(int, row_classes.values()))
+
+if max_class > 2:
+    u_constraints = [f"u{i} > u{i + 1}" for i in range(1, max_class)]
+    output.extend(u_constraints)
+
+# نمایش خروجی
+for line in output:
+    print(line + ';')
             </code>
         </pre>
         <p><a href="index.html">Back to Home Page</a></p>

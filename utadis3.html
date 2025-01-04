@@ -8,42 +8,77 @@
         <h1>UTADIS Version 3 Python Code</h1>
         <pre>
             <code>
-    j = int(input('shomare radif : '))
-    m = 5
-    k = int(input('tedad tabaghat ? : '))
-    
+# دریافت تعداد ستون‌ها
+num_columns = int(input('tedad sotoon ha: '))
+
+# دریافت تعداد اعداد در هر ستون
+m = int(input('tedad adad ha (m): '))
+
+# دریافت تعداد طبقات
+w_count = int(input('tedad w ha dar har radif: '))
+
+# لیست نهایی برای ذخیره اطلاعات هر ستون
+columns_data = {}
+
+# حلقه برای دریافت اطلاعات هر ستون
+for j in range(1, num_columns + 1):
+    print(f"\nshoro vared kardan adad haye sotoon {j}:")
     list_sotoon = []
-    for i in range(1, m + 1):
-        adad = int(input())
+    
+    # دریافت اعداد ستون
+    for _ in range(m):
+        adad = float(input())  # تغییر به float برای اعداد اعشاری
         list_sotoon.append(adad)
-    
-    
+
+    # مرتب‌سازی لیست
     list_sotoon.sort()
-    
-    
+
+    # محاسبه مرزهای طبقات
     maximum = max(list_sotoon)
     minimum = min(list_sotoon)
-    L = (maximum - minimum) / k
-    
-    
-    t_values = {}
-    for i in range(1, k):
-        tji = minimum + i * L
-        label = f't{i}{j}'
-        t_values[label] = tji
-    
-    print(f"u({list_sotoon[0]})= {0}")
-    
+    L = (maximum - minimum) / w_count
+    t_values = [minimum + i * L for i in range(w_count)]
+    t_values.append(maximum)
+
+    # ذخیره اطلاعات ستون
+    columns_data[j] = {
+        "list_sotoon": list_sotoon,
+        "t_values": t_values,
+        "minimum": minimum,
+        "maximum": maximum
+    }
+
+# پردازش و چاپ خروجی‌ها
+for j, data in columns_data.items():
+    list_sotoon = data["list_sotoon"]
+    t_values = data["t_values"]
+    minimum = data["minimum"]
+
+    print(f"\nNatijeh baraye Sotoon {j}:")
+    print(f"u({list_sotoon[0]})= 0")
+
     for z in list_sotoon[1:]:
-        if minimum < z <= t_values.get(f't1{j}'):
-            u = f"{(z - minimum) / (t_values.get(f't1{j}') - minimum):.2f}w{j}1"
-        elif t_values.get(f't1{j}') < z <= t_values.get(f't2{j}'):
-            u = f"{(z - t_values.get(f't1{j}')) / (t_values.get(f't2{j}') - t_values.get(f't1{j}')):.2f}w{j}2 + w{j}1"
-        elif t_values.get(f't2{j}') < z <= maximum:
-            u = f"{(z - t_values.get(f't2{j}')) / (maximum - t_values.get(f't2{j}')):.2f}w{j}3 + w{j}2 + w{j}1"
-    
-     
-        print(f"u({z})= {u}")
+        u = []
+        remaining_value = z - minimum
+
+        for i in range(w_count):
+            lower_bound = t_values[i]
+            upper_bound = t_values[i + 1]
+
+            if remaining_value <= 0:
+                break
+
+            if remaining_value <= (upper_bound - lower_bound):
+                weight = remaining_value / (upper_bound - lower_bound)
+                u.append(f"{weight:.2f}w{j}{i + 1}")
+                remaining_value = 0
+            else:
+                weight = 1.0
+                u.append(f"{weight:.2f}w{j}{i + 1}")
+                remaining_value -= (upper_bound - lower_bound)
+
+        print(f"u({z:.0f})= {' + '.join(u)}")
+
             </code>
         </pre>
         <p><a href="index.html">Back to Home Page</a></p>
