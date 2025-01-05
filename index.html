@@ -59,44 +59,5 @@
         <a href="about.html">About Me</a>
     </p>
 
-    <h2>Run Python Code Directly Here!</h2>
-    <h2>Python Compiler (Run in Browser)</h2>
-<textarea id="codeInput" rows="10" cols="50">
-print("Hello, World!")
-</textarea>
-<br>
-<button onclick="runPython()">Run Code</button>
-<pre id="output"></pre>
-
-<script src="https://cdn.jsdelivr.net/npm/skulpt"></script>
-<script src="https://cdn.jsdelivr.net/npm/skulpt-stdlib"></script>
-
-<script>
-    function runPython() {
-        let code = document.getElementById("codeInput").value;
-        let outputElement = document.getElementById("output");
-        outputElement.innerHTML = "";
-
-        Sk.configure({ 
-            output: function(text) { 
-                outputElement.innerHTML += text + "\n"; 
-            },
-            read: function(x) {
-                if (Sk.builtinFiles === undefined || Sk.builtinFiles.files[x] === undefined)
-                    throw "File not found: '" + x + "'";
-                return Sk.builtinFiles.files[x];
-            }
-        });
-
-        try {
-            Sk.importMainWithBody("<stdin>", false, code);
-        } catch (e) {
-            outputElement.innerHTML = "Error: " + e.toString();
-        }
-    }
-</script>
-
-    
-
 </body>
 </html>
